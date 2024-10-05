@@ -13,23 +13,23 @@ namespace Novaf_Dokr.Command.env.user
 {
     public class Users
     {
-        private const string USER_FILE_PATH = @"C:\Users\Hamza\vin_env\third_party\nova\users\uygfiyiTFVYTFyvfvrTYR8Y5r6rHFtyrf65RTfyTFVr.json";
-        private const string DELETED_USER_FILE_PATH = @"C:\Users\Hamza\vin_env\third_party\nova\users\yGU(T67t67RT76r86R86r8TRVytRCTrv65RV865rvT.json";
-        private const int MAX_ROOT_USERS = 150;
-        private const int MAX_TMP_USERS = 5000;
+        public const string USER_FILE_PATH = @"C:\Users\Hamza\vin_env\third_party\nova\users\uygfiyiTFVYTFyvfvrTYR8Y5r6rHFtyrf65RTfyTFVr.json";
+        public const string DELETED_USER_FILE_PATH = @"C:\Users\Hamza\vin_env\third_party\nova\users\yGU(T67t67RT76r86R86r8TRVytRCTrv65RV865rvT.json";
+        public const int MAX_ROOT_USERS = 150;
+        public const int MAX_TMP_USERS = 5000;
 
         public static string current_user = CommandEnv.CURRENT_USER_NAME;
         public static string current_node = CommandEnv.CURRENT_NODE_NAME;
 
-        private static List<User> users = new List<User>();
-        private static List<User> deletedUsers = new List<User>();
+        public static List<User> users = new List<User>();
+        public static List<User> deletedUsers = new List<User>();
 
         static Users()
         {
             InitializeUserSystem();
         }
 
-        private static void InitializeUserSystem()
+        public static void InitializeUserSystem()
         {
             try
             {
@@ -48,7 +48,7 @@ namespace Novaf_Dokr.Command.env.user
             }
         }
 
-        private static void EnsureFileExists(string filePath)
+        public static void EnsureFileExists(string filePath)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace Novaf_Dokr.Command.env.user
             }
         }
 
-        private static void LoadUsers()
+        public static void LoadUsers()
         {
             try
             {
@@ -81,7 +81,7 @@ namespace Novaf_Dokr.Command.env.user
             }
         }
 
-        private static void LoadDeletedUsers()
+        public static void LoadDeletedUsers()
         {
             try
             {
@@ -96,7 +96,7 @@ namespace Novaf_Dokr.Command.env.user
             }
         }
 
-        private static void SaveUsers()
+        public static void SaveUsers()
         {
             try
             {
@@ -109,7 +109,7 @@ namespace Novaf_Dokr.Command.env.user
             }
         }
 
-        private static void SaveDeletedUsers()
+        public static void SaveDeletedUsers()
         {
             try
             {
@@ -122,7 +122,7 @@ namespace Novaf_Dokr.Command.env.user
             }
         }
 
-        private static string HashPassword(string password)
+        public static string HashPassword(string password)
         {
             try
             {
@@ -142,7 +142,7 @@ namespace Novaf_Dokr.Command.env.user
             }
         }
 
-        private static void RemoveDuplicateUsers()
+        public static void RemoveDuplicateUsers()
         {
             var uniqueUsers = users
                 .GroupBy(u => u.Username.ToLower())
@@ -214,7 +214,7 @@ namespace Novaf_Dokr.Command.env.user
             }
         }
 
-        private static void ListUsers()
+        public static void ListUsers()
         {
             if (users.Count == 0)
             {
@@ -231,24 +231,24 @@ namespace Novaf_Dokr.Command.env.user
             PrintTableFooter();
         }
 
-        private static void PrintTableHeader()
+        public static void PrintTableHeader()
         {
             Console.WriteLine("┌──────────────┬─────────────────────┬─────────────────────┬──────────────┬──────────┬───────┐");
             Console.WriteLine("│ Username     │ Creation Date       │ Last Active         │ Time Spent   │ Is Active│ Group │");
             Console.WriteLine("├──────────────┼─────────────────────┼─────────────────────┼──────────────┼──────────┼───────┤");
         }
 
-        private static void PrintUserRow(User user)
+        public static void PrintUserRow(User user)
         {
             Console.WriteLine($"│ {user.Username,-12} │ {user.CreationDate,-19:yyyy-MM-dd HH:mm:ss} │ {user.LastActive,-19:yyyy-MM-dd HH:mm:ss} │ {FormatTimeSpan(user.TimeSpent),-12} │ {(user.IsActive ? "Yes" : "No"),-8} │ {user.Group,-5} │");
         }
 
-        private static void PrintTableFooter()
+        public static void PrintTableFooter()
         {
             Console.WriteLine("└──────────────┴─────────────────────┴─────────────────────┴──────────────┴──────────┴───────┘");
         }
 
-        private static string FormatTimeSpan(TimeSpan timeSpan)
+        public static string FormatTimeSpan(TimeSpan timeSpan)
         {
             return timeSpan.Days > 0
                 ? $"{timeSpan.Days}d {timeSpan.Hours}h"
@@ -257,7 +257,7 @@ namespace Novaf_Dokr.Command.env.user
                     : $"{timeSpan.Minutes}m {timeSpan.Seconds}s";
         }
 
-        private static void ShowHelp(string command = null)
+        public static void ShowHelp(string command = null)
         {
             if (string.IsNullOrEmpty(command))
             {
@@ -297,7 +297,7 @@ namespace Novaf_Dokr.Command.env.user
             }
         }
 
-        private static void AddUser(string username, string password, string group)
+        public static void AddUser(string username, string password, string group)
         {
             if (!ValidateUsername(username) || !ValidatePassword(password) || !ValidateGroup(group))
             {
@@ -342,7 +342,7 @@ namespace Novaf_Dokr.Command.env.user
             Console.WriteLine($"User {username} added successfully.");
         }
 
-        private static void RemoveUser(string targetUsername)
+        public static void RemoveUser(string targetUsername)
         {
             if (CommandEnv.CURRENT_USER_NAME == "Guest")
             {
@@ -374,7 +374,7 @@ namespace Novaf_Dokr.Command.env.user
             Console.WriteLine($"User {targetUsername} has been removed.");
         }
 
-        private static void Login(string username, string password)
+        public static int Login(string username, string password)
         {
             User user = users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase) && u.PasswordHash == HashPassword(password));
 
@@ -385,14 +385,16 @@ namespace Novaf_Dokr.Command.env.user
                 CommandEnv.CURRENT_USER_NAME = username;
                 SaveUsers();
                 Console.WriteLine($"Logged in as {username}");
+                return 1;
             }
             else
             {
                 Console.WriteLine("Invalid username or password.");
+                return 0;
             }
         }
 
-        private static void Logout()
+        public static void Logout()
         {
             User currentUser = users.FirstOrDefault(u => u.Username.Equals(CommandEnv.CURRENT_USER_NAME, StringComparison.OrdinalIgnoreCase));
             if (currentUser != null)
@@ -406,7 +408,7 @@ namespace Novaf_Dokr.Command.env.user
             Console.WriteLine("Logged out successfully.");
         }
 
-        private static bool ValidateUsername(string username)
+        public static bool ValidateUsername(string username)
         {
             if (string.IsNullOrWhiteSpace(username) || username.Length < 3 || username.Length > 20)
             {
@@ -416,7 +418,7 @@ namespace Novaf_Dokr.Command.env.user
             return true;
         }
 
-        private static bool ValidatePassword(string password)
+        public static bool ValidatePassword(string password)
         {
             if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
             {
@@ -426,7 +428,7 @@ namespace Novaf_Dokr.Command.env.user
             return true;
         }
 
-        private static bool ValidateGroup(string group)
+        public static bool ValidateGroup(string group)
         {
             if (!new[] { "root", "guest", "tmp" }.Contains(group.ToLower()))
             {

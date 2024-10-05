@@ -10,7 +10,6 @@ using System.Diagnostics;
 using System.ComponentModel.Design;
 using System.Text.RegularExpressions;
 using Novaf_Dokr.Command.env.user;
-using Novaf_Dokr.Command.env.u_f_net;
 
 namespace nova.Command
 {
@@ -649,7 +648,7 @@ namespace nova.Command
                         break;
 
                     case "@fnet":                           ////// NEW COMMAND //////
-                        fri3ndly_network.entrypoint(parts);
+                        Novaf_Dokr.Command.env.u_f_net.fri3ndly_network.entrypoint(parts);
                         break;
 
                     case "@sudev":

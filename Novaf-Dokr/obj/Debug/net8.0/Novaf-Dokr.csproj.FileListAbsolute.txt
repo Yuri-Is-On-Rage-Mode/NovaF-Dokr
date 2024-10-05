@@ -15,3 +15,4 @@ G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\
 G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\Novaf-Dokr.pdb
 G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\Novaf-Dokr.genruntimeconfig.cache
 G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\ref\Novaf-Dokr.dll
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\bin\Debug\net8.0\RestSharp.dll

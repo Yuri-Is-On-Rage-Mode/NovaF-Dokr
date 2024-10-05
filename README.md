@@ -40,15 +40,15 @@
 | Command                 | Description                                                                 | Imp |
 |-------------------------|-----------------------------------------------------------------------------|-----|
 | **@fnet**               | To manage network nodes and systems.                                        |     |
-| `@fnet list`            | To list all running nodes in your network.                                  |  n  |
-| `@fnet add`             | To add a new node in your system.                                           |  n  |
-| `@fnet remove`          | To remove a node from your system.                                          |  n  |
-| `@fnet login`           | To login to a node, weather in your system or within your network.          |  n  |
-| `@fnet logout`          | To logout from the current node and login to `127.0.0.1`.                   |  n  |
+| `@fnet list`            | To list all running nodes in your network.                                  |  Y  |
+| `@fnet add`             | To add a new node in your system.                                           |  Y  |
+| `@fnet remove`          | To remove a node from your system.                                          |  Y  |
+| `@fnet login`           | To login to a node, weather in your system or within your network.          |  Y  |
+| `@fnet logout`          | To logout from the current node and login to `127.0.0.1`.                   |  Y  |
 | **More: (tier-2)**      |                                                                             |     |
-| `@fnet node go-live`    | To publish a specfix node, or multipule nodes in your network.              |  n  |
-| `@fnet node shutdown`   | To takedown a node that you own in your network.                            |  n  |
-| `@fnet node update`     | To update a node that you published or a node that you own.                 |  n  |
+| `@fnet node go-live`    | To publish a specfix node, or multipule nodes in your network.              |  Y  |
+| `@fnet node shutdown`   | To takedown a node that you own in your network.                            |  Y  |
+| `@fnet node update`     | To update a node that you published or a node that you own.                 |  Y  |
 | `@fnet node stats`      | To view the stats of a specfix node.                                        |  n  |
 
 
