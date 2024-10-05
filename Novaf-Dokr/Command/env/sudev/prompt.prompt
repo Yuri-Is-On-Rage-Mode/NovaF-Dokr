@@ -1,0 +1,168 @@
+﻿in this c# code for a programming language named Solution Language (The Solution To All Your Problems): "using nova.Utils;
+using MongoDB.Bson.Serialization.Serializers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace nova_vm.Command.env.nova_lang
+{
+    public class Compiler
+    {
+        public class GlitchInTheMatrix
+        {
+            public static void Show()
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.BackgroundColor = ConsoleColor.Red;
+
+                Console.WriteLine("*** GLITCH IN THE MATRIX ***");
+
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.BackgroundColor = ConsoleColor.Black;
+            }
+        }
+        public class KeyWords
+        {
+            public static string _Start = ".start";
+            public static string _End = ".end";
+        }
+        public class Bytecode
+        {
+            public class Generate
+            {
+                public class From
+                {
+                    public static List<string> RichText( string code )
+                    {
+                        List<string> Bytecode = new List<string>();
+
+                        List<string> CodeBlocks = code.Split(" ").ToList();
+
+                        Bytecode = Generate.BC.gen(CodeBlocks);
+
+                        return Bytecode;
+                    }
+                }
+
+                public class BC
+                {
+                    public static List<string> gen(List<string> CodeBlocks )
+                    {
+                        List<string> Bytecode = new List<string>();
+
+                        int inside = 0;
+                        string insideblock = "";
+
+                        bool isStarted = false;
+
+                        int xx = 0;
+
+                        foreach (string cblock in CodeBlocks)
+                        {
+                            if (cblock == "\n" || cblock == "" || cblock == " " || cblock == "" || cblock == "\n" || cblock == string.Empty) { }
+                            else if (cblock == KeyWords._Start)
+                            {
+                                if (isStarted)
+                                {
+                                    errs.New($"the program is started, cannot be started again!: \" {xx}: {cblock} \"");
+                                    errs.ListThem();
+                                    errs.CacheClean();
+                                }
+                                else if (!isStarted)
+                                {
+                                    isStarted = true;
+                                }
+                                else
+                                {
+                                    GlitchInTheMatrix.Show();
+                                }
+                            }
+                            else if (cblock == KeyWords._End)
+                            {
+                                if (!isStarted)
+                                {
+                                    errs.New($"the program is not started, cannot be ended!: \" {xx}: {cblock} \"");
+                                    errs.ListThem();
+                                    errs.CacheClean();
+                                }
+                                else if (isStarted)
+                                {
+                                    isStarted = false;
+                                }
+                                else
+                                {
+                                    GlitchInTheMatrix.Show();
+                                }
+                            }
+                            else
+                            {
+                                if (isStarted)
+                                {
+                                    Bytecode.Add($"{insideblock}{cblock}");
+                                }
+                            }
+                            xx++;
+                        }
+
+                        return Bytecode;
+                    }
+
+                    /*public static List<string> gen(List<string> CodeBlocks )
+                    {
+                        List<string> Bytecode = new List<string>();
+
+                        int inside = 0;
+                        string insideblock = "";
+
+                        foreach (string cblock in CodeBlocks)
+                        {
+                            if (cblock == "\n" || cblock == "" || cblock == " " || cblock == "" || cblock == "\n" || cblock == string.Empty)
+                            {
+                                //inside = inside + 1;
+                                //insideblock = insideblock + "..";
+                                //Bytecode.Add($"{insideblock}{cblock}");
+                            }
+                            else if (cblock.ToLower().StartsWith("{") || cblock.ToLower().StartsWith("func") || cblock.ToLower().StartsWith("conf"))
+                            {
+                                inside = inside + 1;
+
+                                cblock.Replace("{","do");
+                                
+                                Bytecode.Add($"{insideblock}{cblock}");
+
+                                insideblock = insideblock + "..";
+                            }
+                            else if (cblock.ToLower().StartsWith("}"))
+                            {
+                                inside = inside - 1;
+
+                                
+                                insideblock = "";
+
+                                for (var i = 0; i <= inside - 1; i++)
+                                {
+                                    insideblock = insideblock + "..";
+                                }
+
+                                cblock.Replace("}", "rn");
+
+                                Bytecode.Add($"{insideblock}{cblock}");
+
+
+                            }
+                            else
+                            {
+                                Bytecode.Add($"{insideblock}{cblock}");
+                            }
+                        }
+
+                        return Bytecode;
+                    }*/
+                }
+            }
+        }
+    }
+}
+" add more commands and bug fixes , add commands such as "#add 1 2 3 4 ret" is this #add is used to add all the numbers which are passed before ret ketword which is used to return/print

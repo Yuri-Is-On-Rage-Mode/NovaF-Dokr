@@ -1,0 +1,17 @@
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\Novaf-Dokr.GeneratedMSBuildEditorConfig.editorconfig
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\Novaf-Dokr.AssemblyInfoInputs.cache
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\Novaf-Dokr.AssemblyInfo.cs
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\Novaf-Dokr.csproj.CoreCompileInputs.cache
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\Novaf-Dokr.csproj.AssemblyReference.cache
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\bin\Debug\net8.0\Novaf-Dokr.exe
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\bin\Debug\net8.0\Novaf-Dokr.deps.json
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\bin\Debug\net8.0\Novaf-Dokr.runtimeconfig.json
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\bin\Debug\net8.0\Novaf-Dokr.dll
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\bin\Debug\net8.0\Novaf-Dokr.pdb
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\bin\Debug\net8.0\Newtonsoft.Json.dll
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\Novaf-Dokr.csproj.Up2Date
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\Novaf-Dokr.dll
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\refint\Novaf-Dokr.dll
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\Novaf-Dokr.pdb
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\Novaf-Dokr.genruntimeconfig.cache
+G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\obj\Debug\net8.0\ref\Novaf-Dokr.dll

@@ -1,0 +1,13 @@
+﻿ls -l -a ; 
+
+@sudev conf ls ; 
+
+tree ; 
+
+cd ../../.. ; 
+
+ls ; 
+
+cd ../.. ; 
+
+ls -l -a ;

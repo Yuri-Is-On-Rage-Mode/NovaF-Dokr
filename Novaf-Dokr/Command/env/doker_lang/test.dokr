@@ -1,0 +1,15 @@
+﻿.start ;
+
+print hello everyone ; 
+
+input users_name What is your name ; 
+
+print $(users_name) ; 
+
+set users_name Hamza ; 
+
+print $(users_name) ; 
+
+prfdsfint $(users_name) ; 
+
+.end ;
