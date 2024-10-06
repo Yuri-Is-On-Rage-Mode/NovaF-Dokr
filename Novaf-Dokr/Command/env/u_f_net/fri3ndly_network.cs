@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using RestSharp;
 using System;
 using RestSharp.Authenticators;
+using nova.Utils;
 
 namespace Novaf_Dokr.Command.env.u_f_net
 {
@@ -164,19 +165,19 @@ namespace Novaf_Dokr.Command.env.u_f_net
 
         private static void PrintTableHeader()
         {
-            Console.WriteLine("┌──────────────────┬─────────────────┬──────────┬──────────┬─────────────────────────┐");
-            Console.WriteLine("│ Node Name        │ IP Address      │ Port     │ Is Live  │ Last Update             │");
-            Console.WriteLine("├──────────────────┼─────────────────┼──────────┼──────────┼─────────────────────────┤");
+            Console.WriteLine("┌──────────────────┬─────────────────┬──────────┬──────────┬─────────────────────┐");
+            Console.WriteLine("│ Node Name        │ IP Address      │ Port     │ Is Live  │ Last Update         │");
+            Console.WriteLine("├──────────────────┼─────────────────┼──────────┼──────────┼─────────────────────┤");
         }
 
         private static void PrintNodeRow(Node node)
         {
-            Console.WriteLine($"│ {node.Name,-16} │ {node.IPAddress,-15} │ {node.Port,-8} │ {(node.IsLive ? "Yes" : "No"),-8} │ {node.LastUpdate:yyyy-MM-dd HH:mm:ss,-20} │");
+            Console.WriteLine($"│ {node.Name,-16} │ {node.IPAddress,-15} │ {node.Port,-8} │ {(node.IsLive ? "Yes" : "No"),-8} │ {node.LastUpdate:yyyy-MM-dd HH:mm:ss} │");
         }
 
         private static void PrintTableFooter()
         {
-            Console.WriteLine("└──────────────────┴─────────────────┴──────────┴──────────┴─────────────────────────┘");
+            Console.WriteLine("└──────────────────┴─────────────────┴──────────┴──────────┴─────────────────────┘");
         }
 
         private static void ShowHelp(string command = null)
@@ -199,7 +200,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
                     case "add":
                         Console.WriteLine("Usage: @fnet add <nodename> <path> <port>");
                         Console.WriteLine("  <nodename> - Name of the new node to add");
-                        Console.WriteLine("  <path>     - Path to the Python Flask API script");
+                        Console.WriteLine("  <path>     - Path to the Python Flask API script, type `$basic` for basic script");
                         Console.WriteLine("  <port>     - Port to run the service on");
                         break;
                     case "remove":
@@ -215,10 +216,10 @@ namespace Novaf_Dokr.Command.env.u_f_net
                     case "node":
                         Console.WriteLine("Usage: @fnet node <subcommand> [arguments]");
                         Console.WriteLine("Subcommands:");
-                        Console.WriteLine("  go-live <nodename>  - Publish a specific node in your network");
-                        Console.WriteLine("  shutdown <nodename> - Take down a node that you own in your network");
-                        Console.WriteLine("  update <nodename>   - Update a node that you published or own");
-                        Console.WriteLine("  stats <nodename>    - View the stats of a specific node");
+                        Console.WriteLine("  go-live <nodename>  - Publish a specific node in your network");      // type `$all` for all nodes
+                        Console.WriteLine("  shutdown <nodename> - Take down a node that you own in your network");// type `$all` for all nodes
+                        Console.WriteLine("  update <nodename>   - Update a node that you published or own");      // type `$all` for all nodes
+                        Console.WriteLine("  stats <nodename>    - View the stats of a specific node, type `$all` for all nodes");
                         break;
                     default:
                         ShowHelp();
@@ -246,29 +247,59 @@ namespace Novaf_Dokr.Command.env.u_f_net
                 return;
             }
 
-            // Check if script exists
-            if (!File.Exists(scriptPath))
+            if (scriptPath == "$basic")
             {
-                Console.WriteLine($"Error: Script file does not exist at {scriptPath}.");
-                return;
+                scriptPath = "./basic_api_serv.py";
+                // Check if script exists
+                if (!File.Exists(scriptPath))
+                {
+                    Console.WriteLine($"Error: Basic script file does not exist at {scriptPath}.");
+                    return;
+                }
+
+                Node newNode = new Node
+                {
+                    Name = nodeName,
+                    IPAddress = GetLocalIPAddress(),
+                    IsLive = false,
+
+                    Port = portNum,
+
+                    LastUpdate = DateTime.Now,
+                    ScriptPath = scriptPath
+                };
+
+                nodes.Add(newNode);
+                SaveNodes();
+
+                Console.WriteLine($"Node '{nodeName}' added successfully.");
             }
-
-            Node newNode = new Node
+            else
             {
-                Name = nodeName,
-                IPAddress = GetLocalIPAddress(),
-                IsLive = false,
+                // Check if script exists
+                if (!File.Exists(scriptPath))
+                {
+                    Console.WriteLine($"Error: Script file does not exist at {scriptPath}.");
+                    return;
+                }
 
-                Port = portNum,
+                Node newNode = new Node
+                {
+                    Name = nodeName,
+                    IPAddress = GetLocalIPAddress(),
+                    IsLive = false,
 
-                LastUpdate = DateTime.Now,
-                ScriptPath = scriptPath
-            };
+                    Port = portNum,
 
-            nodes.Add(newNode);
-            SaveNodes();
+                    LastUpdate = DateTime.Now,
+                    ScriptPath = scriptPath
+                };
 
-            Console.WriteLine($"Node '{nodeName}' added successfully.");
+                nodes.Add(newNode);
+                SaveNodes();
+
+                Console.WriteLine($"Node '{nodeName}' added successfully.");
+            }
         }
 
         private static void RemoveNode(string nodeName)
@@ -348,28 +379,91 @@ namespace Novaf_Dokr.Command.env.u_f_net
 
         private static void HandleNodeCommand(string[] parts)
         {
-            string subcommand = parts[2].ToLower();
-            string nodeName = parts[3];
-
-            switch (subcommand)
+            try
             {
-                case "go-live":
-                    GoLiveNode(nodeName);
-                    break;
-                case "shutdown":
-                    ShutdownNode(nodeName);
-                    break;
-                case "update":
-                    UpdateNode(nodeName);
-                    break;
-                case "stats":
-                    ShowNodeStats(nodeName);
-                    break;
-                default:
+                // Check if enough parts are provided for the command
+                if (parts.Length < 3)
+                {
+                    Console.WriteLine("Error: Insufficient arguments. A valid subcommand is required.");
                     ShowHelp("node");
-                    break;
+                    return;
+                }
+
+                string subcommand = parts[2].ToLower();
+                string nodeName = parts.Length > 3 ? parts[3] : null; // Check if nodeName is provided
+
+                switch (subcommand)
+                {
+                    case "go-live":
+                        if (nodeName != null)
+                        {
+                            GoLiveNode(nodeName);
+                        }
+                        else
+                        {
+                            errs.New("Error: Node name required for 'go-live' command.");
+                            errs.ListThem();
+                            errs.CacheClean();
+                        }
+                        break;
+
+                    case "shutdown":
+                        if (nodeName != null)
+                        {
+                            ShutdownNode(nodeName);
+                        }
+                        else
+                        {
+                            errs.New("Error: Node name required for 'shutdown' command.");
+                            errs.ListThem();
+                            errs.CacheClean();
+                        }
+                        break;
+
+                    case "update":
+                        if (nodeName != null)
+                        {
+                            UpdateNode(nodeName);
+                        }
+                        else
+                        {
+                            errs.New("Error: Node name required for 'update' command.");
+                            errs.ListThem();
+                            errs.CacheClean();
+                        }
+                        break;
+
+                    case "stats":
+                        if (nodeName != null)
+                        {
+                            ShowNodeStats(nodeName);
+                        }
+                        else
+                        {
+                            // If no node name is given, show stats for all nodes
+                            errs.New("Error: Node name required for 'stats' command.");
+                            errs.ListThem();
+                            errs.CacheClean();
+                        }
+                        break;
+
+                    default:
+                        errs.New($"Error: Unknown subcommand '{subcommand}'.");
+                        errs.ListThem();
+                        errs.CacheClean();
+                        ShowHelp("node");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error and prevent the app from shutting down
+                errs.New($"An error occurred: {ex.Message}");
+                errs.ListThem();
+                errs.CacheClean();
             }
         }
+
 
         private static void GoLiveNode(string nodeName)
         {
@@ -498,17 +592,95 @@ namespace Novaf_Dokr.Command.env.u_f_net
 
         private static void ShowNodeStats(string nodeName)
         {
-            Node nodeToShow = nodes.FirstOrDefault(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase));
-            if (nodeToShow == null)
+            try
+            {
+                if (nodeName == "$all")
+                {
+                    PrintAllNodesTable();
+                }
+                else
+                {
+                    PrintSingleNodeInfo(nodeName);
+                }
+            }
+            catch (Exception)
+            {
+                PrintAllNodesTable();
+            }
+        }
+
+        private static void PrintAllNodesTable()
+        {
+            if (nodes == null || nodes.Count == 0)
+            {
+                Console.WriteLine("No nodes available.");
+                return;
+            }
+
+            const string separator = "+----------------+--------------------------------------------+------------------+--------+----------+---------------------------+";
+            const string format = "| {0,-14} | {1,-41}  | {2,-16} | {3,-6} | {4,-8} | {5,-25} |";
+
+            Console.WriteLine(separator);
+            Console.WriteLine(string.Format(format, "Node Name", "Script Path", "IP Address", "Port", "Is Live", "Last Update"));
+            Console.WriteLine(separator);
+
+            foreach (var node in nodes)
+            {
+                Console.WriteLine(string.Format(format,
+                    TruncateString(node.Name, 14),
+                    TruncateString(node.ScriptPath, 41),
+                    TruncateString(node.IPAddress, 16),
+                    node.Port,
+                    (node.IsLive ? "Yes" : "No"),
+                    TruncateString(node.LastUpdate.ToString(), 25)));
+            }
+
+            Console.WriteLine(separator);
+        }
+
+        private static void PrintSingleNodeInfo(string nodeName)
+        {
+            Node node = nodes.FirstOrDefault(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase));
+            if (node == null)
             {
                 Console.WriteLine($"Error: Node '{nodeName}' not found.");
                 return;
             }
 
-            Console.WriteLine($"Node Name: {nodeToShow.Name}");
-            Console.WriteLine($"IP Address: {nodeToShow.IPAddress}");
-            Console.WriteLine($"Is Live: {(nodeToShow.IsLive ? "Yes" : "No")}");
-            Console.WriteLine($"Last Update: {nodeToShow.LastUpdate}");
+            //Console.WriteLine($"Node Name  : {nodeToShow.Name}");
+            //Console.WriteLine($"Node Script: {nodeToShow.ScriptPath}");
+            //Console.WriteLine($"IP Address : {nodeToShow.IPAddress}");
+            //Console.WriteLine($"Port       : {nodeToShow.Port}");
+            //Console.WriteLine($"Is Live    : {(nodeToShow.IsLive ? "Yes" : "No")}");
+            //Console.WriteLine($"Last Update: {nodeToShow.LastUpdate}");
+
+            //if (node == null)
+            //{
+            //    Console.WriteLine("No nodes available.");
+            //    return;
+            //}
+
+            const string separator = "+----------------+--------------------------------------------+------------------+--------+----------+---------------------------+";
+            const string format = "| {0,-14} | {1,-41}  | {2,-16} | {3,-6} | {4,-8} | {5,-25} |";
+
+            Console.WriteLine(separator);
+            Console.WriteLine(string.Format(format, "Node Name", "Script Path", "IP Address", "Port", "Is Live", "Last Update"));
+            Console.WriteLine(separator);
+
+            Console.WriteLine(string.Format(format,
+                TruncateString(node.Name, 14),
+                TruncateString(node.ScriptPath, 41),
+                TruncateString(node.IPAddress, 16),
+                node.Port,
+                (node.IsLive ? "Yes" : "No"),
+                TruncateString(node.LastUpdate.ToString(), 25)));
+
+            Console.WriteLine(separator);
+        }
+
+        private static string TruncateString(string input, int maxLength)
+        {
+            return input.Length <= maxLength ? input : input.Substring(0, maxLength - 3) + "...";
         }
 
         private static string GetLocalIPAddress()

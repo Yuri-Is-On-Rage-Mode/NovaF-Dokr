@@ -20,8 +20,16 @@ namespace nova.Command
 
         public static List<string> Prepare(string input)
         {
-            List<string> result = input.Split(" ").ToList();
-            return result;
+            try
+            {
+                List<string> result = input.Split(" ").ToList();
+                return result;
+            }
+            catch (Exception)
+            {
+                List<string> result = ["",""];
+                return result;
+            }
         }
 
     }

@@ -85,32 +85,56 @@ namespace novaf
 
             #region Actual Init
 
-        a:
             try
             {
+                while (true)
+                {
+                    try
+                    {
+                        // The rest of your code
+                        DesignFormat.TakeInput([$"\n{CommandEnv.CURRENT_USER_NAME}", "@", "novaf", ": ", $"{CommandEnv.CurrentDirDest}", $" ({CommandEnv.CURRENT_NODE_NAME})", " $ "]);
+                        List<string> commands = UserInput.Prepare(UserInput.Input());
+                        IdentifyCommand.Identify(commands);
+                        List<string> parsed_commands = IdentifyCommand.ReturnThemPlease();
+                        PleaseCommandEnv.TheseCommands(parsed_commands);
+                        IdentifyCommand.CacheClean();
 
-                DesignFormat.TakeInput([$"\n{CommandEnv.CURRENT_USER_NAME}", "@", "novaf", ": ", $"{CommandEnv.CurrentDirDest}", $" ({CommandEnv.CURRENT_NODE_NAME})", " $ "]);
+                        // Handle CTRL+C key press to prevent quitting
+                        Console.CancelKeyPress += (sender, e) =>
+                        {
+                            e.Cancel = true; // Prevent the app from closing
+                            Console.WriteLine("\nTolerating CTRL+C!");
+                        };
+                    }
+                    catch (Exception exp) // Exception handling block
+                    {
+                        errs.CacheClean();
+                        errs.New(exp.ToString());
+                        errs.ListThem();
+                    }
 
-                List<string> commands = UserInput.Prepare(UserInput.Input());
-
-                IdentifyCommand.Identify(commands);
-                List<string> parsed_commands = IdentifyCommand.ReturnThemPlease();
-
-                PleaseCommandEnv.TheseCommands(parsed_commands);
-
-                IdentifyCommand.CacheClean();
-                goto a;
+                    // Handle CTRL+C key press to prevent quitting
+                    Console.CancelKeyPress += (sender, e) =>
+                    {
+                        e.Cancel = true; // Prevent the app from closing
+                        Console.WriteLine("\nTolerating CTRL+C!");
+                    };
+                }
             }
-            catch (Exception exp) // makethis to tolarate CTRL+C and do not quit!!!!
+            catch (Exception exx)
             {
-                errs.CacheClean();
-                errs.New(exp.ToString());
+                errs.New(exx.ToString());
                 errs.ListThem();
-                goto a;
+                errs.CacheClean();
             }
 
-            #endregion
+            // Handle CTRL+C key press to prevent quitting
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                e.Cancel = true; // Prevent the app from closing
+                Console.WriteLine("\nTolerating CTRL+C!");
+            };
         }
-
+        #endregion
     }
 }
