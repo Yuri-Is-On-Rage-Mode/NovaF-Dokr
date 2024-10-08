@@ -16,20 +16,21 @@ using RestSharp;
 using System;
 using RestSharp.Authenticators;
 using nova.Utils;
+using Novaf_Dokr.Command.env.u_f_net.utils;
 
 namespace Novaf_Dokr.Command.env.u_f_net
 {
     public class fri3ndly_network
     {
-        private const string NODES_FILE_PATH = @"C:\Users\Hamza\vin_env\third_party\nova\f_net\nodes.json";
-        private static List<Node> nodes = new List<Node>();
+        public const string NODES_FILE_PATH = @"C:\Users\Hamza\vin_env\third_party\nova\f_net\nodes.json";
+        public static List<Node> nodes = new List<Node>();
 
         static fri3ndly_network()
         {
             InitializeNetworkSystem();
         }
 
-        private static void InitializeNetworkSystem()
+        public static void InitializeNetworkSystem()
         {
             try
             {
@@ -43,7 +44,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             }
         }
 
-        private static void EnsureFileExists(string filePath)
+        public static void EnsureFileExists(string filePath)
         {
             try
             {
@@ -59,7 +60,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             }
         }
 
-        private static void LoadNodes()
+        public static void LoadNodes()
         {
             try
             {
@@ -72,7 +73,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             }
         }
 
-        private static void SaveNodes()
+        public static void SaveNodes()
         {
             try
             {
@@ -135,6 +136,14 @@ namespace Novaf_Dokr.Command.env.u_f_net
                         }
                         HandleNodeCommand(parts);
                         break;
+                    case "req":
+                        if (parts.Length < 3)
+                        {
+                            ShowHelp("req");
+                            return;
+                        }
+                        routes_things.HandlReqRequest(parts);
+                        break;
                     default:
                         ShowHelp();
                         break;
@@ -146,7 +155,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             }
         }
 
-        private static void ListNodes()
+        public static void ListNodes()
         {
             if (nodes.Count == 0)
             {
@@ -156,31 +165,50 @@ namespace Novaf_Dokr.Command.env.u_f_net
 
             Console.WriteLine("List of nodes:");
             PrintTableHeader();
+
+            int isup = 0;
+            int isdown = 0;
+
             foreach (var node in nodes)
             {
+                if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{node.IPAddress}:{node.Port}", "/")) == 200)
+                {
+                    isup++;
+                    node.IsLive = true;
+                }
+                else
+                {
+                    isdown++;
+                    node.IsLive = false;
+                }
                 PrintNodeRow(node);
             }
             PrintTableFooter();
+
+            Console.WriteLine($"\nTotal `{nodes.Count}` node(s), `{isup}` node(s) are online, `{isdown}` node(s) are offline!");
+
+
         }
 
-        private static void PrintTableHeader()
+        public static void PrintTableHeader()
         {
-            Console.WriteLine("┌──────────────────┬─────────────────┬──────────┬──────────┬─────────────────────┐");
-            Console.WriteLine("│ Node Name        │ IP Address      │ Port     │ Is Live  │ Last Update         │");
-            Console.WriteLine("├──────────────────┼─────────────────┼──────────┼──────────┼─────────────────────┤");
+            Console.WriteLine("+------------------+-----------------+----------+----------+---------------------+");
+            Console.WriteLine("| Node Name        | IP Address      | Port     | Is Live  | Last Update         |");
+            Console.WriteLine("+------------------+-----------------+----------+----------+---------------------+");
         }
 
-        private static void PrintNodeRow(Node node)
+        public static void PrintNodeRow(Node node)
         {
-            Console.WriteLine($"│ {node.Name,-16} │ {node.IPAddress,-15} │ {node.Port,-8} │ {(node.IsLive ? "Yes" : "No"),-8} │ {node.LastUpdate:yyyy-MM-dd HH:mm:ss} │");
+            
+            Console.WriteLine($"| {node.Name,-16} | {node.IPAddress,-15} | {node.Port,-8} | {(node.IsLive ? "Yes" : "No"),-8} | {node.LastUpdate:yyyy-MM-dd HH:mm:ss} |");
         }
 
-        private static void PrintTableFooter()
+        public static void PrintTableFooter()
         {
-            Console.WriteLine("└──────────────────┴─────────────────┴──────────┴──────────┴─────────────────────┘");
+            Console.WriteLine("+------------------+-----------------+----------+----------+---------------------+");
         }
 
-        private static void ShowHelp(string command = null)
+        public static void ShowHelp(string command = null)
         {
             if (string.IsNullOrEmpty(command))
             {
@@ -192,6 +220,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
                 Console.WriteLine("  login <nodename> <username> <password>     - Login to a node in your system or network");
                 Console.WriteLine("  logout                       - Logout from the current node and login to 127.0.0.1");
                 Console.WriteLine("  node <subcommand>            - Manage node operations (go-live, shutdown, update, stats)");
+                Console.WriteLine("  req  <subcommand>            - Manage requests operations, type `list` for list, type `help` for `help`");
             }
             else
             {
@@ -221,6 +250,28 @@ namespace Novaf_Dokr.Command.env.u_f_net
                         Console.WriteLine("  update <nodename>   - Update a node that you published or own");      // type `$all` for all nodes
                         Console.WriteLine("  stats <nodename>    - View the stats of a specific node, type `$all` for all nodes");
                         break;
+                    case "req":
+                        Console.WriteLine("Usage: @fnet req <method> <url> [options]");
+                        Console.WriteLine("Methods:");
+                        Console.WriteLine("  get    - Perform a GET request");
+                        Console.WriteLine("  post   - Perform a POST request");
+                        Console.WriteLine("  put    - Perform a PUT request");
+                        Console.WriteLine("  delete - Perform a DELETE request");
+                        Console.WriteLine("  list   - List all possible paths");
+                        Console.WriteLine("Options:");
+                        Console.WriteLine("  --show-content       - Display the response content");
+                        Console.WriteLine("  --threads <number>   - Number of concurrent requests");
+                        Console.WriteLine("  --retry-on-fail <number> - Number of retry attempts on failure");
+                        //Console.WriteLine("\nExamples:");
+                        //Console.WriteLine("  @fnet req get http://example.com");
+                        //Console.WriteLine("  @fnet req post http://api.example.com/data --show-content");
+                        //Console.WriteLine("  @fnet req get http://test.com --threads 5 --retry-on-fail 3");
+                        //Console.WriteLine("  @fnet req put http://api.example.com/update --show-content");
+                        //Console.WriteLine("  @fnet req delete http://api.example.com/resource/123");
+
+                        //Console.WriteLine("  @fnet req get $all");
+                        //Console.WriteLine("  @fnet req list");
+                        break;
                     default:
                         ShowHelp();
                         break;
@@ -228,7 +279,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             }
         }
 
-        private static void AddNode(string nodeName, string scriptPath, int portNum)
+        public static void AddNode(string nodeName, string scriptPath, int portNum)
         {
             if (nodes.Any(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase)))
             {
@@ -302,7 +353,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             }
         }
 
-        private static void RemoveNode(string nodeName)
+        public static void RemoveNode(string nodeName)
         {
             Node nodeToRemove = nodes.FirstOrDefault(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase));
             if (nodeToRemove == null)
@@ -316,7 +367,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             Console.WriteLine($"Node '{nodeName}' removed successfully.");
         }
 
-        private static void LoginToNode(string nodeName,string username1, string password1)
+        public static void LoginToNode(string nodeName,string username1, string password1)
         {
             Node nodeToLogin = nodes.FirstOrDefault(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase));
             if (nodeToLogin == null)
@@ -366,7 +417,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             }
         }
 
-        private static void LogoutFromNode()
+        public static void LogoutFromNode()
         {
             foreach (var node in nodes)
             {
@@ -377,7 +428,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             Console.WriteLine("Logged out from all nodes.");
         }
 
-        private static void HandleNodeCommand(string[] parts)
+        public static void HandleNodeCommand(string[] parts)
         {
             try
             {
@@ -465,7 +516,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
         }
 
 
-        private static void GoLiveNode(string nodeName)
+        public static void GoLiveNode(string nodeName)
         {
             Node nodeToGoLive = nodes.FirstOrDefault(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase));
             if (nodeToGoLive == null)
@@ -489,7 +540,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             Process.Start(new ProcessStartInfo
             {
                 FileName = "python",
-                Arguments = $"\"{nodeToGoLive.ScriptPath}\" {nodeToGoLive.Name} {nodeToGoLive.Port} {CommandEnv.CURRENT_USER_NAME} {password}", // Ensures the script path is correctly escaped
+                Arguments = $"\"{nodeToGoLive.ScriptPath}\" {nodeToGoLive.Name} {CommandEnv.CURRENT_USER_NAME} {password} {nodeToGoLive.Port} ", // Ensures the script path is correctly escaped
                 UseShellExecute = false, // False to use standard input/output
                 RedirectStandardOutput = true, // Optionally redirect output
                 CreateNoWindow = true // Do not create a window for the process
@@ -499,7 +550,18 @@ namespace Novaf_Dokr.Command.env.u_f_net
             nodeToGoLive.LastUpdate = DateTime.Now;
             SaveNodes();
 
-            Console.WriteLine($"Node '{nodeName}' is now live.");
+            if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{nodeToGoLive.IPAddress}:{nodeToGoLive.Port}", "/home/json")) == 200)
+            {
+                nodeToGoLive.IsLive = true;
+
+                Console.WriteLine($"Node '{nodeName}' has been updated and is now live.");
+            }
+            else
+            {
+                nodeToGoLive.IsLive = false;
+
+                Console.WriteLine($"Node '{nodeName}' has been updated but it is not live, type `@fnet node go-live {nodeName}`.");
+            }
         }
 
         public static void ShutdownNode(string nodeName)
@@ -516,8 +578,8 @@ namespace Novaf_Dokr.Command.env.u_f_net
             {
                 try
                 {
-                    string shutdownUrl = $"http://{nodeToShutdown.IPAddress}:{nodeToShutdown.Port}/shutdown";
-                    HttpResponseMessage response = client.PostAsync(shutdownUrl, null).Result; // Block and wait for the result
+                    string shutdownUrl = $"http://{nodeToShutdown.IPAddress}:{nodeToShutdown.Port}/f/system/shutdown";
+                    HttpResponseMessage response = client.GetAsync(shutdownUrl).Result; // Block and wait for the result
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -546,13 +608,24 @@ namespace Novaf_Dokr.Command.env.u_f_net
             // Update the node status and save
             nodeToShutdown.IsLive = false;
             SaveNodes();
+            
+            if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{nodeToShutdown.IPAddress}:{nodeToShutdown.Port}", "/home/json")) == 200)
+            {
+                nodeToShutdown.IsLive = true;
 
-            Console.WriteLine($"Node '{nodeName}' has been shut down.");
+                Console.WriteLine($"Node '{nodeName}' could not be shutdown.");
+            }
+            else
+            {
+                nodeToShutdown.IsLive = false;
+
+                Console.WriteLine($"Node '{nodeName}' has been shut down.");
+            }
         }
 
 
 
-        private static void UpdateNode(string nodeName)
+        public static void UpdateNode(string nodeName)
         {
             Node nodeToUpdate = nodes.FirstOrDefault(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase));
             if (nodeToUpdate == null)
@@ -578,7 +651,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             Process.Start(new ProcessStartInfo
             {
                 FileName = "python",
-                Arguments = $"\"{nodeToUpdate.ScriptPath}\" {nodeToUpdate.Name} {nodeToUpdate.Port} {CommandEnv.CURRENT_USER_NAME} {password}", // Ensures the script path is correctly escaped
+                Arguments = $"\"{nodeToUpdate.ScriptPath}\" {nodeToUpdate.Name} {CommandEnv.CURRENT_USER_NAME} {password} {nodeToUpdate.Port}", // Ensures the script path is correctly escaped
                 UseShellExecute = false, // False to use standard input/output
                 RedirectStandardOutput = true, // Optionally redirect output
                 CreateNoWindow = true // Do not create a window for the process
@@ -587,10 +660,22 @@ namespace Novaf_Dokr.Command.env.u_f_net
             nodeToUpdate.LastUpdate = DateTime.Now;
             SaveNodes();
 
-            Console.WriteLine($"Node '{nodeName}' has been updated and is now live.");
+            if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{nodeToUpdate.IPAddress}:{nodeToUpdate.Port}", "/home/json")) == 200)
+            {
+                nodeToUpdate.IsLive = true;
+
+                Console.WriteLine($"Node '{nodeName}' has been updated and is now live.");
+            }
+            else
+            {
+                nodeToUpdate.IsLive = false;
+
+                Console.WriteLine($"Node '{nodeName}' has been updated but it is not live, type `@fnet node go-live {nodeName}`.");
+            }
+
         }
 
-        private static void ShowNodeStats(string nodeName)
+        public static void ShowNodeStats(string nodeName)
         {
             try
             {
@@ -609,7 +694,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             }
         }
 
-        private static void PrintAllNodesTable()
+        public static void PrintAllNodesTable()
         {
             if (nodes == null || nodes.Count == 0)
             {
@@ -624,6 +709,23 @@ namespace Novaf_Dokr.Command.env.u_f_net
             Console.WriteLine(string.Format(format, "Node Name", "Script Path", "IP Address", "Port", "Is Live", "Last Update"));
             Console.WriteLine(separator);
 
+            int isup = 0;
+            int isdown = 0;
+
+            foreach (var node in nodes)
+            {
+                if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{node.IPAddress}:{node.Port}", "/")) == 200)
+                {
+                    node.IsLive = true;
+                    isup++;
+                }
+                else
+                {
+                    node.IsLive = false;
+                    isdown++;
+                }
+            }
+
             foreach (var node in nodes)
             {
                 Console.WriteLine(string.Format(format,
@@ -636,9 +738,11 @@ namespace Novaf_Dokr.Command.env.u_f_net
             }
 
             Console.WriteLine(separator);
+
+            Console.WriteLine($"\nTotal `{nodes.Count}` node(s), `{isup}` nodes(s) are online, `{isdown}` node(s) are offline!");
         }
 
-        private static void PrintSingleNodeInfo(string nodeName)
+        public static void PrintSingleNodeInfo(string nodeName)
         {
             Node node = nodes.FirstOrDefault(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase));
             if (node == null)
@@ -667,6 +771,15 @@ namespace Novaf_Dokr.Command.env.u_f_net
             Console.WriteLine(string.Format(format, "Node Name", "Script Path", "IP Address", "Port", "Is Live", "Last Update"));
             Console.WriteLine(separator);
 
+            if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{node.IPAddress}:{node.Port}", "/")) == 200)
+            {
+                node.IsLive = true;
+            }
+            else
+            {
+                node.IsLive = false;
+            }
+
             Console.WriteLine(string.Format(format,
                 TruncateString(node.Name, 14),
                 TruncateString(node.ScriptPath, 41),
@@ -678,12 +791,12 @@ namespace Novaf_Dokr.Command.env.u_f_net
             Console.WriteLine(separator);
         }
 
-        private static string TruncateString(string input, int maxLength)
+        public static string TruncateString(string input, int maxLength)
         {
             return input.Length <= maxLength ? input : input.Substring(0, maxLength - 3) + "...";
         }
 
-        private static string GetLocalIPAddress()
+        public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
             var localIP = host.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);

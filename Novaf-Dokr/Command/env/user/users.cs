@@ -233,19 +233,19 @@ namespace Novaf_Dokr.Command.env.user
 
         public static void PrintTableHeader()
         {
-            Console.WriteLine("┌──────────────┬─────────────────────┬─────────────────────┬──────────────┬──────────┬───────┐");
-            Console.WriteLine("│ Username     │ Creation Date       │ Last Active         │ Time Spent   │ Is Active│ Group │");
-            Console.WriteLine("├──────────────┼─────────────────────┼─────────────────────┼──────────────┼──────────┼───────┤");
+            Console.WriteLine("┌--------------┬---------------------┬---------------------┬----------------┬----------┬-------┐");
+            Console.WriteLine("| Username     | Creation Date       | Last Active         | Age            | Is Active| Group |");
+            Console.WriteLine("+--------------+---------------------+---------------------+----------------+----------+-------+");
         }
 
         public static void PrintUserRow(User user)
         {
-            Console.WriteLine($"│ {user.Username,-12} │ {user.CreationDate,-19:yyyy-MM-dd HH:mm:ss} │ {user.LastActive,-19:yyyy-MM-dd HH:mm:ss} │ {FormatTimeSpan(user.TimeSpent),-12} │ {(user.IsActive ? "Yes" : "No"),-8} │ {user.Group,-5} │");
+            Console.WriteLine($"| {user.Username,-12} | {user.CreationDate,-19:yyyy-MM-dd HH:mm:ss} | {user.LastActive,-19:yyyy-MM-dd HH:mm:ss} | {FormatTimeSpan(user.LastActive - user.CreationDate ),-14} | {(user.IsActive ? "Yes" : "No"),-8} | {user.Group,-5} |");
         }
 
         public static void PrintTableFooter()
         {
-            Console.WriteLine("└──────────────┴─────────────────────┴─────────────────────┴──────────────┴──────────┴───────┘");
+            Console.WriteLine("+--------------+---------------------+---------------------+----------------+----------+-------+");
         }
 
         public static string FormatTimeSpan(TimeSpan timeSpan)

@@ -22,7 +22,7 @@ namespace nova.Utils
             public static void err(string err, string at)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write($" ├───");
+                Console.Write($" +---");
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write($"> ");
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -33,7 +33,7 @@ namespace nova.Utils
             public static void errlast(string err, string at)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write($" └───");
+                Console.Write($" +---");
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write($"> ");
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -56,7 +56,7 @@ namespace nova.Utils
             public static void warn(string err, string at)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write($" ├───");
+                Console.Write($" +---");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write($"> ");
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -67,7 +67,7 @@ namespace nova.Utils
             public static void warnlast(string err, string at)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write($" └───");
+                Console.Write($" +---");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write($"> ");
                 Console.ForegroundColor = ConsoleColor.Yellow;

@@ -18,6 +18,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 # Basic auth decorator
 def check_auth(username, password):
+    
     return username == auth_username and password == auth_password
 
 def requires_auth(f):
@@ -30,9 +31,29 @@ def requires_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route('/')
-def index():
-    return f"API Server for {node_name} is running!"
+@app.route('/', methods=['GET'])
+@app.route('/home', methods=['GET'])
+@app.route('/home/html', methods=['GET'])
+def index_html():
+    routes = [rule.rule for rule in app.url_map.iter_rules()]
+    routes_to_list = ""
+    for i in routes:
+        routes_to_list = routes_to_list + f"<li>{i}</li>"
+    return f"<h1>API Server for {node_name} is running!</h1><hr><h2>You are now serving {node_name}, by {auth_username} running on {request.host}!</h2><br><h3>Routes Are</h3><ul>{routes_to_list}</ul>"
+
+@app.route('/home/json', methods=['GET'])
+def index_json():
+    routes = [rule.rule for rule in app.url_map.iter_rules()]
+    routes_to_list = ""
+    for i in routes:
+        routes_to_list = routes_to_list + f"<li>{i}</li>"
+    return jsonify({'info': {"node":{"name":node_name,"owner":{f"{auth_username}":{"r":"1","w":"1","x":"1"},f"you":{"r":"1","w":"0","x":"0"}}},"host":request.host,"admin":{"username":auth_username}},"request":{"ip":request.host.split(":")[0],"port":request.host.split(":")[1]}}), 200
+
+@app.route('/check/islive', methods=['GET'])
+def check_islive():
+    return jsonify({'info':"True"}), 200
+
+
 
 @app.route('/hello', methods=['GET'])
 def hello():
@@ -41,6 +62,11 @@ def hello():
 @app.route('/routes', methods=['GET'])
 def list_routes():
     routes = [rule.rule for rule in app.url_map.iter_rules()]
+    return jsonify({'routes': routes}), 200
+
+@app.route('/robots.txt', methods=['GET'])
+def list_robots_conditioned_routes():
+    routes = {"Allowed":{"main":"./","db":"./db"},"Not Allowed":{"outer dir structure":"../"}}
     return jsonify({'routes': routes}), 200
 
 @app.route('/f/auth/login', methods=['POST'])
@@ -60,19 +86,17 @@ def login():
 @app.route('/f/system/shutdown', methods=['POST'])
 @requires_auth
 def shutdown():
-    try:
-        exit()
-        return jsonify({'message': 'Shutting down the server...'})
-    except Exception as e:
-        return jsonify({"message": "Error occurred during shutdown!", "error": str(e)}), 500
+    shutdown_server()
+    return jsonify({'message': 'Server is shutting down...'}), 200
 
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
-        logging.error("Shutdown function not available.")
-        exit()
+        logging.error("Shutdown function is not available. Not running with the Werkzeug Server.")
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
+    logging.info("Server is shutting down.")
+
 
 @app.route('/f/ssh/cmd', methods=['POST'])
 @requires_auth

@@ -116,8 +116,8 @@ namespace novaf
                     // Handle CTRL+C key press to prevent quitting
                     Console.CancelKeyPress += (sender, e) =>
                     {
-                        e.Cancel = true; // Prevent the app from closing
-                        Console.WriteLine("\nTolerating CTRL+C!");
+                        e.Cancel = false; // Prevent the app from closing
+                        //Console.WriteLine("\nTolerating CTRL+C!");
                     };
                 }
             }
