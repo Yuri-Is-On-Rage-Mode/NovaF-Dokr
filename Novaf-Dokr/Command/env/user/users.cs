@@ -118,7 +118,9 @@ namespace Novaf_Dokr.Command.env.user
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving deleted users: {ex.Message}");
+                errs.New($"Error saving deleted users: {ex.Message}");
+                errs.ListThem();
+                errs.CacheClean();
             }
         }
 
@@ -226,6 +228,14 @@ namespace Novaf_Dokr.Command.env.user
             PrintTableHeader();
             foreach (var user in users)
             {
+                if (user.Username != CommandEnv.CURRENT_USER_NAME)
+                {
+                    user.IsActive = false;
+                }
+                else
+                { 
+                    user.IsActive = true;
+                }
                 PrintUserRow(user);
             }
             PrintTableFooter();
@@ -233,7 +243,7 @@ namespace Novaf_Dokr.Command.env.user
 
         public static void PrintTableHeader()
         {
-            Console.WriteLine("┌--------------┬---------------------┬---------------------┬----------------┬----------┬-------┐");
+            Console.WriteLine("+--------------+---------------------+---------------------+----------------+----------+-------+");
             Console.WriteLine("| Username     | Creation Date       | Last Active         | Age            | Is Active| Group |");
             Console.WriteLine("+--------------+---------------------+---------------------+----------------+----------+-------+");
         }
@@ -325,6 +335,24 @@ namespace Novaf_Dokr.Command.env.user
                 return;
             }
 
+            if (group.Equals("root", StringComparison.OrdinalIgnoreCase))
+            {
+                if (CommandEnv.CURRENT_USER_NAME != "root")
+                {
+                    Console.Write("Password for root: ");
+                    string passwdFroot = Console.ReadLine();
+
+                    if (Login("root", passwdFroot) == 0)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        Logout();
+                    }
+                }
+            }
+
             User newUser = new User
             {
                 Username = username,
@@ -340,6 +368,17 @@ namespace Novaf_Dokr.Command.env.user
             SaveUsers();
 
             Console.WriteLine($"User {username} added successfully.");
+            Console.Write($"Do you want to login as {username}? [y/n]");
+
+            string yorn = Console.ReadLine();
+
+            if (yorn != string.Empty)
+            {
+                if (yorn.ToLower() == "y")
+                {
+                    Login(username,password);
+                }
+            }
         }
 
         public static void RemoveUser(string targetUsername)

@@ -176,8 +176,9 @@ namespace Novaf_Dokr.Command.env.u_f_net.utils
                 if (showContent)
                 {
                     Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("Content:");
-                    Console.WriteLine(result.Content);
+                    Console.Write("* ");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write($"{result.Content} \n");
                 }
             }
 

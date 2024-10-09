@@ -17,6 +17,8 @@ using System;
 using RestSharp.Authenticators;
 using nova.Utils;
 using Novaf_Dokr.Command.env.u_f_net.utils;
+using System.Globalization;
+using System.Threading.Tasks.Dataflow;
 
 namespace Novaf_Dokr.Command.env.u_f_net
 {
@@ -169,43 +171,57 @@ namespace Novaf_Dokr.Command.env.u_f_net
             int isup = 0;
             int isdown = 0;
 
+            //foreach (var node in nodes)
+            //{
+            //    if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{node.IPAddress}:{node.Port}", "/")) == 200)
+            //    {
+            //        node.IsLive = true;
+            //        isup++;
+            //    }
+            //    else
+            //    {
+            //        node.IsLive = false;
+            //        isdown++;
+            //    }
+            //}
+
             foreach (var node in nodes)
             {
-                if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{node.IPAddress}:{node.Port}", "/")) == 200)
-                {
-                    isup++;
-                    node.IsLive = true;
-                }
-                else
-                {
-                    isdown++;
-                    node.IsLive = false;
-                }
+                //if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{node.IPAddress}:{node.Port}", "/")) == 200)
+                //{
+                //    isup++;
+                //    node.IsLive = true;
+                //}
+                //else
+                //{
+                //    isdown++;
+                //    node.IsLive = false;
+                //}
                 PrintNodeRow(node);
             }
             PrintTableFooter();
 
-            Console.WriteLine($"\nTotal `{nodes.Count}` node(s), `{isup}` node(s) are online, `{isdown}` node(s) are offline!");
+            //Console.WriteLine($"\nTotal `{nodes.Count}` node(s), `{isup}` node(s) are online, `{isdown}` node(s) are offline!");
 
 
         }
 
         public static void PrintTableHeader()
         {
-            Console.WriteLine("+------------------+-----------------+----------+----------+---------------------+");
-            Console.WriteLine("| Node Name        | IP Address      | Port     | Is Live  | Last Update         |");
-            Console.WriteLine("+------------------+-----------------+----------+----------+---------------------+");
+            Console.WriteLine("+------------------+-----------------+----------+------------+---------------------+");
+            Console.WriteLine("| Node Name        | IP Address      | Port     | Admin User | Last Update         |");
+            Console.WriteLine("+------------------+-----------------+----------+------------+---------------------+");
         }
 
         public static void PrintNodeRow(Node node)
         {
             
-            Console.WriteLine($"| {node.Name,-16} | {node.IPAddress,-15} | {node.Port,-8} | {(node.IsLive ? "Yes" : "No"),-8} | {node.LastUpdate:yyyy-MM-dd HH:mm:ss} |");
+            Console.WriteLine($"| {node.Name,-16} | {node.IPAddress,-15} | {node.Port,-8} | {node.AdminUsername,-10} | {node.Last_Code_Update:yyyy-MM-dd HH:mm:ss} |");
         }
 
         public static void PrintTableFooter()
         {
-            Console.WriteLine("+------------------+-----------------+----------+----------+---------------------+");
+            Console.WriteLine("+------------------+-----------------+----------+------------+---------------------+");
         }
 
         public static void ShowHelp(string command = null)
@@ -287,6 +303,12 @@ namespace Novaf_Dokr.Command.env.u_f_net
                 return;
             }
 
+            if (nodes.Any(n => n.Port.Equals(portNum)))
+            {
+                Console.WriteLine($"A node is already using port {portNum}. Please choose a different port.");
+                return;
+            }
+
             // Request password
             Console.Write($"Password for {CommandEnv.CURRENT_USER_NAME}: ");
             string password = Console.ReadLine();
@@ -316,8 +338,12 @@ namespace Novaf_Dokr.Command.env.u_f_net
 
                     Port = portNum,
 
-                    LastUpdate = DateTime.Now,
-                    ScriptPath = scriptPath
+                    Last_Code_Update = DateTime.Now,
+                    ScriptPath = scriptPath,
+
+                    AdminUsername = CommandEnv.CURRENT_USER_NAME,
+                    Creation_Time = DateTime.Now,
+                    Last_Up = DateTime.Now,
                 };
 
                 nodes.Add(newNode);
@@ -342,8 +368,12 @@ namespace Novaf_Dokr.Command.env.u_f_net
 
                     Port = portNum,
 
-                    LastUpdate = DateTime.Now,
-                    ScriptPath = scriptPath
+                    Last_Code_Update = DateTime.Now,
+                    ScriptPath = scriptPath,
+
+                    AdminUsername = CommandEnv.CURRENT_USER_NAME,
+                    Creation_Time = DateTime.Now,
+                    Last_Up = DateTime.Now,
                 };
 
                 nodes.Add(newNode);
@@ -367,6 +397,8 @@ namespace Novaf_Dokr.Command.env.u_f_net
             Console.WriteLine($"Node '{nodeName}' removed successfully.");
         }
 
+        public static string CurrentNodeAccessToken = "";
+
         public static void LoginToNode(string nodeName,string username1, string password1)
         {
             Node nodeToLogin = nodes.FirstOrDefault(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase));
@@ -376,56 +408,103 @@ namespace Novaf_Dokr.Command.env.u_f_net
                 return;
             }
 
+            //PYTHON SCRIOT FOR LOGIN: G:\fri3nds\v-category-projects\Developer-Grade-Virtual-OS\Novaf-Dokr\Novaf-Dokr\bin\Debug\net8.0\login_me.py
 
             try
             {
-                // Set API endpoint and credentials
-                string url = $"{nodeToLogin.IPAddress}/auth/login";
-                string username = username1;
-                string password = password1;
-
-                // Create a new instance of RestClient
-                var client = new RestClient(url);
-
-                // Create a new RestRequest
-                var request = new RestRequest("/", Method.Post); // Set method to Post
-
-                // Set basic authentication
-                request.Authenticator = new HttpBasicAuthenticator(username, password);
-
-                // Execute the request
-                var response = client.Execute(request);
-
-                // Check the status code
-                if (response.IsSuccessStatusCode)
+                CurrentNodeAccessToken = RunOnWindows.RunPythonFileAndReturn(["G:\\fri3nds\\v-category-projects\\Developer-Grade-Virtual-OS\\Novaf-Dokr\\Novaf-Dokr\\bin\\Debug\\net8.0\\login_me.py", $"http://{nodeToLogin.IPAddress}:{nodeToLogin.Port}", username1, password1]);
+                if (!CurrentNodeAccessToken.Contains("###error_occured###"))
                 {
-                    //Console.WriteLine(response.Content);
-                    Console.WriteLine($"Logged into node '{nodeName}' at {nodeToLogin.IPAddress}.\n... Username: `{username}`, Password: `{password}`");
+                    if (!CurrentNodeAccessToken.Contains("###not_logined###"))
+                    {
+                        Console.WriteLine($"Login to node {nodeToLogin.Name} with username {username1} successfull.");
+                        Console.Write($"Do you want to start a ssh connection in an interactive shell? [y/n]");
+
+                        string yorn = Console.ReadLine();
+
+                        if (yorn != string.Empty)
+                        {
+                            if (yorn.ToLower() == "y")
+                            {
+                            Bshell:
+
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write($"(");
+
+                                Console.ForegroundColor = ConsoleColor.Blue;
+                                Console.Write($"{nodeToLogin.IPAddress}");
+
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write($":");
+
+                                Console.ForegroundColor = ConsoleColor.Magenta;
+                                Console.Write($"{nodeToLogin.Port}");
+
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write($")");
+
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write($" $ ");
+
+                                Console.ForegroundColor = ConsoleColor.White;
+                                string cmd = Console.ReadLine();
+
+                                if (cmd != "exit")
+                                {
+                                    string outputfromserver = RunOnWindows.RunPythonFileAndReturn(["G:\\fri3nds\\v-category-projects\\Developer-Grade-Virtual-OS\\Novaf-Dokr\\Novaf-Dokr\\bin\\Debug\\net8.0\\command_me.py", $"http://{nodeToLogin.IPAddress}:{nodeToLogin.Port}", cmd, CurrentNodeAccessToken]);
+
+                                    try
+                                    {
+                                        if (outputfromserver != string.Empty)
+                                        {
+                                            Console.WriteLine(outputfromserver);
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("<return>");
+                                        }
+                                    }
+                                    catch (Exception)
+                                    {
+                                        errs.New($"An error occured!");
+                                        errs.ListThem();
+                                        errs.CacheClean();
+                                    }
+                                    goto Bshell;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        novaOutput.starerror($"{CurrentNodeAccessToken}");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("Error: " + response.StatusCode);
+                    novaOutput.starerror($"###error_occured###:{CurrentNodeAccessToken.Replace("###error_occured###", "")}");
                 }
-               
-
-                SaveNodes();
             }
             catch (Exception)
             {
-
-                throw;
+                errs.New($"An error occured!");
+                errs.ListThem();
+                errs.CacheClean();
             }
+            
         }
 
         public static void LogoutFromNode()
         {
-            foreach (var node in nodes)
+            if (CurrentNodeAccessToken != string.Empty || CurrentNodeAccessToken != "")
             {
-                node.IsLive = false;
+                CurrentNodeAccessToken = "";
+                Console.WriteLine("Logged out successfully.");
             }
-
-            SaveNodes();
-            Console.WriteLine("Logged out from all nodes.");
+            else
+            {
+                Console.WriteLine("No node to logout.");
+            }
         }
 
         public static void HandleNodeCommand(string[] parts)
@@ -547,7 +626,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
                 //WorkingDirectory = Path.GetDirectoryName(nodeToGoLive.ScriptPath) // Optional: Set the working directory
             });
             nodeToGoLive.IsLive = true;
-            nodeToGoLive.LastUpdate = DateTime.Now;
+            nodeToGoLive.Last_Code_Update = DateTime.Now;
             SaveNodes();
 
             if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{nodeToGoLive.IPAddress}:{nodeToGoLive.Port}", "/home/json")) == 200)
@@ -623,8 +702,6 @@ namespace Novaf_Dokr.Command.env.u_f_net
             }
         }
 
-
-
         public static void UpdateNode(string nodeName)
         {
             Node nodeToUpdate = nodes.FirstOrDefault(n => n.Name.Equals(nodeName, StringComparison.OrdinalIgnoreCase));
@@ -657,7 +734,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
                 CreateNoWindow = true // Do not create a window for the process
                 //WorkingDirectory = Path.GetDirectoryName(nodeToUpdate.ScriptPath) // Optional: Set the working directory
             });
-            nodeToUpdate.LastUpdate = DateTime.Now;
+            nodeToUpdate.Last_Code_Update = DateTime.Now;
             SaveNodes();
 
             if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{nodeToUpdate.IPAddress}:{nodeToUpdate.Port}", "/home/json")) == 200)
@@ -702,15 +779,29 @@ namespace Novaf_Dokr.Command.env.u_f_net
                 return;
             }
 
-            const string separator = "+----------------+--------------------------------------------+------------------+--------+----------+---------------------------+";
-            const string format = "| {0,-14} | {1,-41}  | {2,-16} | {3,-6} | {4,-8} | {5,-25} |";
+            const string separator = "+----------------+----------------+--------------------------------------------+------------------+--------+----------+---------------------------+---------------------------+";
+            const string format = "| {0,-14} | {1,-14} | {2,-41}  | {3,-16} | {4,-6} | {5,-8} | {6,-25} | {7,-25} |";
 
             Console.WriteLine(separator);
-            Console.WriteLine(string.Format(format, "Node Name", "Script Path", "IP Address", "Port", "Is Live", "Last Update"));
+            Console.WriteLine(string.Format(format, "Node Name", "Admin User", "Script Path", "IP Address", "Port", "Is Live", "Last Up", "Last Update"));
             Console.WriteLine(separator);
 
             int isup = 0;
             int isdown = 0;
+
+            //foreach (var node in nodes)
+            //{
+            //    if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{node.IPAddress}:{node.Port}", "/")) == 200)
+            //    {
+            //        node.IsLive = true;
+            //        isup++;
+            //    }
+            //    else
+            //    {
+            //        node.IsLive = false;
+            //        isdown++;
+            //    }
+            //}
 
             foreach (var node in nodes)
             {
@@ -724,17 +815,15 @@ namespace Novaf_Dokr.Command.env.u_f_net
                     node.IsLive = false;
                     isdown++;
                 }
-            }
-
-            foreach (var node in nodes)
-            {
                 Console.WriteLine(string.Format(format,
-                    TruncateString(node.Name, 14),
-                    TruncateString(node.ScriptPath, 41),
-                    TruncateString(node.IPAddress, 16),
-                    node.Port,
-                    (node.IsLive ? "Yes" : "No"),
-                    TruncateString(node.LastUpdate.ToString(), 25)));
+                 TruncateString(node.Name, 14),
+                 TruncateString(node.AdminUsername, 14),
+                 TruncateString(node.ScriptPath, 41),
+                 TruncateString(node.IPAddress, 16),
+                 node.Port,
+                 (node.IsLive ? "Yes" : "No"),
+                 TruncateString(node.Last_Up.ToString(), 25),
+                 TruncateString(node.Last_Code_Update.ToString(), 25)));
             }
 
             Console.WriteLine(separator);
@@ -756,7 +845,7 @@ namespace Novaf_Dokr.Command.env.u_f_net
             //Console.WriteLine($"IP Address : {nodeToShow.IPAddress}");
             //Console.WriteLine($"Port       : {nodeToShow.Port}");
             //Console.WriteLine($"Is Live    : {(nodeToShow.IsLive ? "Yes" : "No")}");
-            //Console.WriteLine($"Last Update: {nodeToShow.LastUpdate}");
+            //Console.WriteLine($"Last Update: {nodeToShow.Last_Code_Update}");
 
             //if (node == null)
             //{
@@ -764,11 +853,11 @@ namespace Novaf_Dokr.Command.env.u_f_net
             //    return;
             //}
 
-            const string separator = "+----------------+--------------------------------------------+------------------+--------+----------+---------------------------+";
-            const string format = "| {0,-14} | {1,-41}  | {2,-16} | {3,-6} | {4,-8} | {5,-25} |";
+            const string separator = "+----------------+----------------+--------------------------------------------+------------------+--------+----------+---------------------------+---------------------------+";
+            const string format = "| {0,-14} | {1,-14} | {2,-41}  | {3,-16} | {4,-6} | {5,-8} | {6,-25} | {7,-25} |";
 
             Console.WriteLine(separator);
-            Console.WriteLine(string.Format(format, "Node Name", "Script Path", "IP Address", "Port", "Is Live", "Last Update"));
+            Console.WriteLine(string.Format(format, "Node Name", "Admin User", "Script Path", "IP Address", "Port", "Is Live", "Last Up", "Last Update"));
             Console.WriteLine(separator);
 
             if (routes_things.PossibleRequests.InsureGetRequest(Path.Join($"http://{node.IPAddress}:{node.Port}", "/")) == 200)
@@ -782,11 +871,13 @@ namespace Novaf_Dokr.Command.env.u_f_net
 
             Console.WriteLine(string.Format(format,
                 TruncateString(node.Name, 14),
+                TruncateString(node.AdminUsername, 14),
                 TruncateString(node.ScriptPath, 41),
                 TruncateString(node.IPAddress, 16),
                 node.Port,
                 (node.IsLive ? "Yes" : "No"),
-                TruncateString(node.LastUpdate.ToString(), 25)));
+                TruncateString(node.Last_Up.ToString(), 25),
+                TruncateString(node.Last_Code_Update.ToString(), 25)));
 
             Console.WriteLine(separator);
         }
@@ -810,7 +901,11 @@ namespace Novaf_Dokr.Command.env.u_f_net
         public string IPAddress { get; set; }
         public int Port { get; set; }
         public bool IsLive { get; set; }
-        public DateTime LastUpdate { get; set; }
+        public DateTime Last_Code_Update { get; set; }
         public string ScriptPath { get; set; }
+
+        public string AdminUsername { get; set; }
+        public DateTime Creation_Time { get; set; }
+        public DateTime Last_Up { get; set; }
     }
 }

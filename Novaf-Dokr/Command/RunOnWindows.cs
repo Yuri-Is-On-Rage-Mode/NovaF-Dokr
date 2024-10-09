@@ -133,7 +133,7 @@ namespace nova.Command
             ProcessStartInfo start = new ProcessStartInfo
             {
                 FileName = pythonPath,
-                Arguments = $"start python {scriptPath} {args}",
+                Arguments = $"python {scriptPath} {args}",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -170,6 +170,68 @@ namespace nova.Command
             {
                 Console.WriteLine("An error occurred while running the command: " + ex.Message);
             }
+        }
+        public static string RunPythonFileAndReturn(List<string> commands)
+        {
+            // Ensure the commands list has at least two elements (Python path and script path)
+            if (commands.Count <= 0)
+            {
+                Console.WriteLine("Please provide both the Python path and the script path.");
+                return "###error_occured###";
+            }
+
+            string pythonPath = "powershell";  // Python executable path
+            string scriptPath = commands[0];  // Python script path
+
+
+            string result = "";
+            // Collect the remaining elements (arguments) as a string
+            string args = string.Join(" ", commands.GetRange(1, commands.Count - 1));  // All arguments after the script path
+
+            // Set up the process to execute the Python script with the given arguments
+            ProcessStartInfo start = new ProcessStartInfo
+            {
+                FileName = pythonPath,
+                Arguments = $"python {scriptPath} {args}",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            try
+            {
+                
+                // Start the process and capture the output and errors
+                using (Process process = Process.Start(start))
+                {
+                    // Read the standard output stream
+                    using (StreamReader reader = process.StandardOutput)
+                    {
+                        result = reader.ReadToEnd();
+                        //Console.WriteLine("\n" + result);
+                    }
+
+                    // Read the error stream if any errors occur
+                    using (StreamReader reader = process.StandardError)
+                    {
+                        string errors = reader.ReadToEnd();
+                        if (!string.IsNullOrEmpty(errors))
+                        {
+                            Console.WriteLine("\n" + errors);
+                        }
+                    }
+
+                    // Ensure the process completes before continuing
+                    process.WaitForExit();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred while running the command: " + ex.Message);
+            }
+
+            return result;
         }
     }
 }

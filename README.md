@@ -210,38 +210,9 @@
 
 ## Version 0.1.0 (5/10/2024) Uploaded On (5~8/10/2024)
 
-**Added some network and user commands:**
-
-## **User**
-
-| Command                 | Description                                                                 | Imp |
-|-------------------------|-----------------------------------------------------------------------------|-----|
-| **@user**               | To manage users.                                                            |     |
-| `@user list`            | To list all users.                                                          |  Y  |
-| `@user add`             | To add a new user.                                                          |  Y  |
-| `@user remove`          | To remove a user.                                                           |  Y  |
-| `@user login`           | To login as a user.                                                         |  Y  |
-| `@user logout`          | To logout from the current user and login as Guest.                         |  Y  |
-| **More: (tier-2)**      |                                                                             |     |
-| `@user name`            | To print the current username.                                              |  Y  | 
-| `@user node-name`       | To print the current node name.                                             |  Y  |
-
-
-## **f-Net**
-
-| Command                 | Description                                                                 | Imp |
-|-------------------------|-----------------------------------------------------------------------------|-----|
-| **@fnet**               | To manage network nodes and systems.                                        |     |
-| `@fnet list`            | To list all running nodes in your network.                                  |  Y  |
-| `@fnet add`             | To add a new node in your system.                                           |  Y  |
-| `@fnet remove`          | To remove a node from your system.                                          |  Y  |
-| `@fnet login`           | To login to a node, weather in your system or within your network.          |  Y  |
-| `@fnet logout`          | To logout from the current node and login to `127.0.0.1`.                   |  Y  |
-| **More: (tier-2)**      |                                                                             |     |
-| `@fnet node go-live`    | To publish a specfix node, or multipule nodes in your network.              |  Y  |
-| `@fnet node shutdown`   | To takedown a node that you own in your network.                            |  Y  |
-| `@fnet node update`     | To update a node that you published or a node that you own.                 |  Y  |
-| `@fnet node stats`      | To view the stats of a specfix node.                                        |  n  |
+- **Added some network and user commands:**
+- Fixed bugs.
+- Added functionality.
 
 
 <br>
@@ -251,13 +222,26 @@
 
 > **f-Net** is a cutting-edge network protocol designed by developers, for developers. It's still under construction, but once it's live, it's going to shake things up and rock the internet!  Stay tuned for a revolution in network technology! 🌟
 
-## **f-Net Protocols**
-| Protocol                | Description                                                                 | Imp |
-|-------------------------|-----------------------------------------------------------------------------|-----|
-| `fri3ndly_network`      | A simple friendly testingground for fellow devs.                            |  n  |
-| `Apin`                  | A simple Api-Friendly network built for apis.                               |  n  |
-| `Bpin`                  | A simple For-Media-Storage network built for fast data transfers.           |  n  |
 
+## **f-Net Protocols**
+| Protocol           | Description                                                                             | Imp |
+|--------------------|-----------------------------------------------------------------------------------------|-----|
+| `fri3ndly_network` | A simple friendly testing ground for fellow devs.                                       |  Y  |
+| `ApiNet`           | A simple Api-Friendly network built for APIs.                                           |  n  |
+| `StDtTr`           | A simple For-Media-Storage network built for fast data transfers.                       |  n  |
+| `SecureXNet`       | A protocol for securing sensitive data in transit with high-level encryption.           |  n  |
+| `CloudShareNet`    | Optimizes data exchanges across cloud platforms for syncing and collaboration.          |  n  |
+| `GameStreamNet`    | A real-time data transmission protocol optimized for gaming and video streaming.        |  n  |
+| `DeviceSyncNet`    | A protocol for syncing data across IoT devices with efficient command processing.       |  n  |
+| `DataMeshNet`      | Decentralized data handling and storage protocol using mesh network concepts.           |  n  |
+
+## **f-Net Modules**
+| Module          | Description                                                                                | Imp |
+|-----------------|--------------------------------------------------------------------------------------------|-----|
+| `QoSControl`    | Manages Quality of Service to prioritize network traffic and ensure reliable performance.    |  n  |
+| `CacheBoost`    | A caching mechanism to optimize data storage and retrieval, reducing repeated network calls. |  n  |
+| `AutoScaleNet`  | Dynamically scales network resources based on traffic volume for efficient performance.      |  n  |
+| `NetMonitor`    | Monitors network performance, logs errors, and sends alerts for performance and security.    |  n  |
 
 # **Note:** 📢
 

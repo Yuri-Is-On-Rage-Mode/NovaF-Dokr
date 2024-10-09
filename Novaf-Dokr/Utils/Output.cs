@@ -8,6 +8,20 @@ namespace nova.Utils
 {
     internal class novaOutput
     {
+        public static void starerror(string msg)
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("* ");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write(msg);
+        }
+        public static void starinfo(string msg)
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("* ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write(msg);
+        }
         public class erroroutputs
         {
             public static void errinfo(string err)

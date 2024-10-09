@@ -76,7 +76,7 @@ def login():
     
     if check_auth(username, password):
         global auth_token
-        auth_token = f"{username}-token"  # Simple token generation
+        auth_token = f"{username}-token-supersecret-please-dont-share-this-and-this-is-totally-very-secure!!!"  # Simple token generation
         logging.info("Login successful, token generated.")
         return jsonify({'auth-token': auth_token}), 200
     else:
